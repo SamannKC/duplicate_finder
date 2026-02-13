@@ -22,6 +22,7 @@ struct HashedFile<'a>{
     hash: String,
 }
 
+
 fn main() -> Result<(), Box<dyn std::error::Error>>{
     let mut files: Vec<FileInfo> = Vec::new();
     let directory = "/home/ado/Documents/";
@@ -65,12 +66,27 @@ fn main() -> Result<(), Box<dyn std::error::Error>>{
                     Err(e) => eprintln!("Error calculating hash: {}", e),
                 }
             }
-            for i in 0..hashed_files.len(){
-                for j in (i+1)..hashed_files.len(){
-                    if hashed_files[i].hash == hashed_files[j].hash {
-                        println!("Duplicate files found: ");
-                        println!("{}", hashed_files[i].path.display());
-                        println!("{}", hashed_files[j].path.display());
+
+            let mut used = vec![false; hashed_files.len()];
+
+            for i in 0..hashed_files.len() {
+                if used[i] {
+                    continue;
+                }
+
+                let mut group = vec![hashed_files[i].path];
+
+                for j in (i + 1)..hashed_files.len() {
+                    if !used[j] && hashed_files[i].hash == hashed_files[j].hash {
+                        group.push(hashed_files[j].path);
+                        used[j] = true;
+                    }
+                }
+
+                if group.len() > 1 {
+                    println!("\nDuplicate group:");
+                    for p in group {
+                        println!("{}", p.display());
                     }
                 }
             }
